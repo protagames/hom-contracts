@@ -83,9 +83,7 @@ contract HOMToken is ERC20, Ownable, TimeLockTransactions, WithdrawableOwnable, 
 
         // Create a uniswap pair for this new token
         dexRouter = IUniswapV2Router02(0x10ED43C718714eb63d5aA57B78B54704E256024E); // mainnet
-//        dexRouter = IUniswapV2Router02(0xD99D1c33F9fC3444f8101754aBC46c52416550D1); // testnet
-        uniswapFactoryAddress = address(0xcA143Ce32Fe78f1f7019d7d551a6402fC5350c73); // mainnet
-//        uniswapFactoryAddress = address(0x6725F303b657a9451d8BA641348b6761A6CC7a17); // testnet
+        //        dexRouter = IUniswapV2Router02(0xD99D1c33F9fC3444f8101754aBC46c52416550D1); // testnet
 
         dexPair = IUniswapV2Factory(dexRouter.factory()).createPair(address(this), dexRouter.WETH());
         _setAutomatedMarketMakerPair(dexPair, true);
@@ -101,7 +99,7 @@ contract HOMToken is ERC20, Ownable, TimeLockTransactions, WithdrawableOwnable, 
         emit ExcludeFromFees(DEAD_ADDRESS, true);
     }
 
-    function setNumTokensSellToAddToLiquidity(uint256 newLimit) external onlyOwner {
+    function setNumTokensLimitToAddToLiquidity(uint256 newLimit) external onlyOwner {
         require(newLimit >= totalSupply().div(10**6), "new limit is too low");
         numTokensSellToAddToLiquidity = newLimit;
         emit SetNumTokensSellToAddToLiquidity(newLimit);
@@ -207,11 +205,11 @@ contract HOMToken is ERC20, Ownable, TimeLockTransactions, WithdrawableOwnable, 
         _approve(address(this), address(dexRouter), tokenAmount);
 
         dexRouter.swapExactTokensForETHSupportingFeeOnTransferTokens(
-            tokenAmount,
-            0,
-            path,
-            address(this),
-            block.timestamp.add(300)
+            tokenAmount, // The amount of input tokens to send.
+            0, // The minimum amount of BNB that must be received for the transaction not to revert.
+            path, // An array of token addresses. path.length must be >= 2. Pools for each consecutive pair of addresses must exist and have liquidity.
+            address(this), // Recipient of the ETH.
+            block.timestamp.add(300) // Unix timestamp after which the transaction will revert.
         );
     }
 
@@ -219,12 +217,12 @@ contract HOMToken is ERC20, Ownable, TimeLockTransactions, WithdrawableOwnable, 
         _approve(address(this), address(dexRouter), tokenAmount);
 
         dexRouter.addLiquidityETH{ value: bnbAmount }(
-            address(this),
-            tokenAmount,
-            0,
-            0,
-            cakeReceiver,
-            block.timestamp.add(300)
+            address(this), // A pool token.
+            tokenAmount, // The amount of token to add as liquidity if the WETH/token price is <= msg.value/amountTokenDesired (token depreciates).
+            0, // Bounds the extent to which the WETH/token price can go up before the transaction reverts. Must be <= amountTokenDesired.
+            0, // Bounds the extent to which the token/WETH price can go up before the transaction reverts. Must be <= msg.value.
+            cakeReceiver, // Recipient of the liquidity tokens.
+            block.timestamp.add(300) // Unix timestamp after which the transaction will revert.
         );
     }
 
@@ -232,11 +230,12 @@ contract HOMToken is ERC20, Ownable, TimeLockTransactions, WithdrawableOwnable, 
         return (keccak256(abi.encodePacked((a))) == keccak256(abi.encodePacked((b))));
     }
 
+    // @dev Protect against the usage of unauthorized pancake pairs. Reason: without this if someone creates another pair and this contract do not know it, all transactions will pass without dex fees on that given pair.
     modifier _checkIfPairIsAuthorized(address from, address to) {
         // if the contract has symbol and the name is Cake-LP, it is a pancake pair
         if(Address.isContract(from) && !automatedMarketMakerPairs[from]) {
             try IUniswapV2Pair(from).symbol() returns (string memory _value) {
-                if(compareStrings(_value, "Cake-LP")) 
+                if(compareStrings(_value, "Cake-LP"))
                     revert("pair not allowed");
             }
             catch {}
@@ -269,9 +268,7 @@ contract HOMToken is ERC20, Ownable, TimeLockTransactions, WithdrawableOwnable, 
         require(to != address(0), "ERC20: transfer to the zero address");
         require(amount > 0, "Transfer amount must be greater than zero");
 
-        bool excludedAccount = isExcludedFromFees[from] || isExcludedFromFees[to];
-
-        if (excludedAccount) {
+        if (isExcludedFromFees[from] || isExcludedFromFees[to]) {
             super._transfer(from, to, amount);
         } else {
             // timelock dex transactions
@@ -318,8 +315,7 @@ contract HOMToken is ERC20, Ownable, TimeLockTransactions, WithdrawableOwnable, 
             // apply burn fees always
             if (burnFee > 0) {
                 tokensToBurn = amount.mul(burnFee).div(10 ** decimals());
-//                super._burn(from, tokensToBurn);
-                super._transfer(from, DEAD_ADDRESS, tokensToBurn); // todo: probably the ERC20burnable should be cleaner
+                super._transfer(from, DEAD_ADDRESS, tokensToBurn);
             }
 
             uint256 amountMinusFees = amount.sub(tokenToEcoSystem).sub(tokensToLiquidity).sub(tokensToBurn);

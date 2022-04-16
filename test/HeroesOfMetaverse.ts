@@ -164,7 +164,7 @@ describe("HOM", function () {
 
   it("Owner should not be able to set a new limit to add to liquidity lower than 0.000001% of total supply", async function () {
     await expect(
-      contract.setNumTokensSellToAddToLiquidity(utils.parseEther("400"))
+      contract.setNumTokensLimitToAddToLiquidity(utils.parseEther("400"))
     ).to.be.revertedWith("new limit is too low");
 
     expect(await contract.numTokensSellToAddToLiquidity()).to.equal(
@@ -173,7 +173,7 @@ describe("HOM", function () {
   });
 
   it("Owner should be able to set new limit to add to liquidity", async function () {
-    await contract.setNumTokensSellToAddToLiquidity(utils.parseEther("100000"));
+    await contract.setNumTokensLimitToAddToLiquidity(utils.parseEther("100000"));
 
     expect(await contract.numTokensSellToAddToLiquidity()).to.equal(
       utils.parseEther("100000")
@@ -322,13 +322,13 @@ describe("HOM", function () {
     describe("liquidity fee", function () {
       describe("test liquidity fee limits", async function () {
         await expect(
-          contract.setNumTokensSellToAddToLiquidity(
+          contract.setNumTokensLimitToAddToLiquidity(
             ethers.utils.parseEther("0")
           )
         ).to.be.revertedWith("new limit is too low");
 
         await expect(
-          contract.setNumTokensSellToAddToLiquidity(
+          contract.setNumTokensLimitToAddToLiquidity(
             ethers.utils.parseEther("100")
           )
         ).to.be.revertedWith("new limit is too low");

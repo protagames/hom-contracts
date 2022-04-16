@@ -31,8 +31,8 @@ The mechanic behind this implementation is that if the wallet can operate(not ti
 
 # Anti dump measures
 This measure protects the typical user against whales(users with a massive amount of tokens) from dumping(selling lots of tokens to the DEX).
-The mechanics behind this consists of adding extra fees to punish dumping behavior. Before dumping, the contract checks the current amount of tokens the dex pool holds. If the amount of tokens a wallet wants to sell is above a configured percentage, it will apply extra fees to this transaction.
-This mechanic used in conjunction with time lock gives more opportunities to the market to react to dumps.
+The mechanics behind this consist of adding extra fees to punish dumping behavior. Before dumping, the contract checks the current amount of tokens the dex pool holds. If the amount of tokens a wallet wants to sell is above a configured percentage, it will apply extra fees to this transaction.
+This mechanic used in conjunction with time lock gives more opportunities to the market to react to dump.
 The company follows limits hardcoded in the contract to protect the users against abusive extra taxes and the threshold where this mechanic is activated.
 
 # Tech Stuff
