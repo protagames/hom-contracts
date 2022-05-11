@@ -135,6 +135,7 @@ contract HOMToken is ERC20, Ownable, TimeLockTransactions, WithdrawableOwnable, 
 
     // @dev set ecosystem address to receive fees
     function setEcoSystemAddress(address newAddress) external onlyOwner {
+        require(newAddress != address(0), "zero address not allowed");
         require(ecoSystemAddress != newAddress, "EcoSystem address already set");
         ecoSystemAddress = newAddress;
         emit EcoSystemAddressUpdated(newAddress);
@@ -148,8 +149,9 @@ contract HOMToken is ERC20, Ownable, TimeLockTransactions, WithdrawableOwnable, 
         emit EcosystemFeeUpdated(newFee);
     }
 
-    // @dev set liquidity address to receive fees, id dead, the lp token goes to the user
+    // @dev set liquidity address to receive fees, if is set to dead, the lp token goes to the user
     function setLiquidityAddress(address newAddress) external onlyOwner {
+        require(newAddress != address(0), "zero address not allowed");
         require(liquidityAddress != newAddress, "Liquidity address already set");
         liquidityAddress = newAddress;
         emit LiquidityAddressUpdated(newAddress);
