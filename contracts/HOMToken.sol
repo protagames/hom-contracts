@@ -49,9 +49,6 @@ contract HOMToken is ERC20, Ownable, TimeLockTransactions, WithdrawableOwnable, 
     // @dev the defauld dex router
     IUniswapV2Router02 public dexRouter;
 
-    // @dev the dex factory address
-    address public uniswapFactoryAddress;
-
     // @dev just to simplify to the user, the total fees
     uint256 public totalFees = 0;
 
