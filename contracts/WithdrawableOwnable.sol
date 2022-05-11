@@ -69,9 +69,9 @@ contract WithdrawableOwnable is Ownable, ReentrancyGuard {
             );
             tokenContract.safeTransferFrom(address(this), _msgSender(), tokenIds[i]);
         }
-        emit WithdrawERC721(tokenAddress, tokenIds);
+        emit WithdrawERC721(_msgSender(), tokenAddress, tokenIds);
     }
-    event WithdrawERC721(address tokenAddress, uint256[] tokenIds);
+    event WithdrawERC721(address sender, address tokenAddress, uint256[] tokenIds);
 
     /**
      * @dev Withdraw any ERC1155 token from this contract
@@ -93,6 +93,7 @@ contract WithdrawableOwnable is Ownable, ReentrancyGuard {
         );
 
         tokenContract.safeTransferFrom(address(this), _msgSender(), id, amount, "");
+        emit WithdrawERC1155(_msgSender(), tokenAddress, id, amount);
     }
-    event WithdrawERC1155(address tokenAddress, uint256 id, uint256 amount);
+    event WithdrawERC1155(address sender, address tokenAddress, uint256 id, uint256 amount);
 }

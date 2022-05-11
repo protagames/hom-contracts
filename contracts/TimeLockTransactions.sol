@@ -14,7 +14,9 @@ contract TimeLockTransactions is Ownable {
     // @note if you are inheriting this contract, you should expose this function and protect it via onlyowner or roles
     function _unlockWallet(address wallet) internal {
         walletToTime[wallet] = 0;
+        emit UnlockedWallet(wallet);
     }
+    event UnlockedWallet(address wallet);
 
     function getLockTime() external view returns(uint){
         return _lockTime;
