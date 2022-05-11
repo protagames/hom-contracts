@@ -62,7 +62,7 @@ contract HOMToken is ERC20, Ownable, TimeLockTransactions, WithdrawableOwnable, 
     mapping(address => bool) public isExcludedFromFees;
 
     // @dev the default dex pair
-    address public dexPair;
+    address immutable public dexPair;
 
     // @dev what pairs are allowed to work in the token
     mapping(address => bool) public automatedMarketMakerPairs;
