@@ -64,7 +64,7 @@ contract HOMToken is ERC20, Ownable, TimeLockTransactions, WithdrawableOwnable, 
     // @dev what pairs are allowed to work in the token
     mapping(address => bool) public automatedMarketMakerPairs;
 
-    uint256 constant LIQUIFICATION_LIMIT_DENOMINATOR = 10**6;
+    uint256 constant internal LIQUIFICATION_LIMIT_DENOMINATOR = 10**6;
 
     constructor() ERC20("Heroes of Metaverse Token", "HOM") {
         uint256 initialSupply = 420000000 * 10**18;
@@ -202,7 +202,7 @@ contract HOMToken is ERC20, Ownable, TimeLockTransactions, WithdrawableOwnable, 
             0, // The minimum amount of BNB that must be received for the transaction not to revert.
             path, // An array of token addresses. path.length must be >= 2. Pools for each consecutive pair of addresses must exist and have liquidity.
             address(this), // Recipient of the ETH.
-            block.timestamp + 300 // Unix timestamp after which the transaction will revert.
+            block.timestamp // Unix timestamp after which the transaction will revert.
         );
     }
 
@@ -215,7 +215,7 @@ contract HOMToken is ERC20, Ownable, TimeLockTransactions, WithdrawableOwnable, 
             0, // Bounds the extent to which the WETH/token price can go up before the transaction reverts. Must be <= amountTokenDesired.
             0, // Bounds the extent to which the token/WETH price can go up before the transaction reverts. Must be <= msg.value.
             cakeReceiver, // Recipient of the liquidity tokens.
-            block.timestamp + 300 // Unix timestamp after which the transaction will revert.
+            block.timestamp // Unix timestamp after which the transaction will revert.
         );
     }
 
