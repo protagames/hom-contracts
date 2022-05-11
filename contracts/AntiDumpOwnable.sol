@@ -24,7 +24,7 @@ contract AntiDumpOwnable is Ownable{
     // @dev antidump mechanics the total max value of the extra fees
     uint256 public constant ANTI_DUMP_FEE_LIMIT = 25 * 10**16; // 25%
 
-    function setAntiDumpThreshold(uint256 newThreshold) public onlyOwner {
+    function setAntiDumpThreshold(uint256 newThreshold) external onlyOwner {
         require(newThreshold >= ANTI_DUMP_THRESHOLD_LIMIT, "The company cannot set abusive threshold");
         antiDumpThreshold = newThreshold;
         emit AntiDumpThresholdUpdated(newThreshold);

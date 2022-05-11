@@ -141,14 +141,14 @@ contract HOMToken is ERC20, Ownable, TimeLockTransactions, WithdrawableOwnable, 
     }
 
     // @dev set ecosystem address to receive fees
-    function setEcoSystemAddress(address newAddress) public onlyOwner {
+    function setEcoSystemAddress(address newAddress) external onlyOwner {
         require(ecoSystemAddress != newAddress, "EcoSystem address already setted");
         ecoSystemAddress = newAddress;
         emit EcoSystemAddressUpdated(newAddress);
     }
 
     // @dev set ecosystem tax to receive fees
-    function setEcosystemFee(uint256 newFee) public onlyOwner {
+    function setEcosystemFee(uint256 newFee) external onlyOwner {
         checkFeesChanged(ecoSystemFee, newFee);
         ecoSystemFee = newFee;
         _updateTotalFee();
@@ -156,14 +156,14 @@ contract HOMToken is ERC20, Ownable, TimeLockTransactions, WithdrawableOwnable, 
     }
 
     // @dev set liquidity address to receive fees, id dead, the lp token goes to the user
-    function setLiquidityAddress(address newAddress) public onlyOwner {
+    function setLiquidityAddress(address newAddress) external onlyOwner {
         require(liquidityAddress != newAddress, "Liquidity address already setted");
         liquidityAddress = newAddress;
         emit LiquidityAddressUpdated(newAddress);
     }
 
     // @dev set liquidity tax
-    function setLiquidityFee(uint256 newFee) public onlyOwner {
+    function setLiquidityFee(uint256 newFee) external onlyOwner {
         checkFeesChanged(liquidityFee, newFee);
         liquidityFee = newFee;
         _updateTotalFee();
@@ -171,7 +171,7 @@ contract HOMToken is ERC20, Ownable, TimeLockTransactions, WithdrawableOwnable, 
     }
 
     // @set the liquidity fee
-    function setBurnFee(uint256 newFee) public onlyOwner {
+    function setBurnFee(uint256 newFee) external onlyOwner {
         checkFeesChanged(burnFee, newFee);
         burnFee = newFee;
         _updateTotalFee();

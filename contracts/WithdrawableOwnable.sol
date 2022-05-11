@@ -17,7 +17,7 @@ contract WithdrawableOwnable is Ownable, ReentrancyGuard {
      * @dev Withdraw native token from this contract
      * @param amount the amount of tokens you want to withdraw
      */
-    function withdraw(uint256 amount) virtual onlyOwner nonReentrant public {
+    function withdraw(uint256 amount) virtual onlyOwner nonReentrant external {
         uint256 balance = address(this).balance;
 
         require(amount <= balance, "Withdrawable: you cannot remove this total amount" );

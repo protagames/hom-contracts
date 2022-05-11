@@ -20,7 +20,7 @@ contract TimeLockTransactions is Ownable {
         return _lockTime;
     }
 
-    function getLockTime(address wallet) public view returns (uint) {
+    function getLockTime(address wallet) external view returns (uint) {
         return walletToTime[wallet];
     }
 
@@ -49,7 +49,7 @@ contract TimeLockTransactions is Ownable {
     }
 
     // @dev unlock a wallet for one transaction
-    function unlockWallet(address wallet) public onlyOwner {
+    function unlockWallet(address wallet) external onlyOwner {
         _unlockWallet(wallet);
     }
 }
