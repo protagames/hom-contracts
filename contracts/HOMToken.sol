@@ -68,7 +68,7 @@ contract HOMToken is ERC20, Ownable, TimeLockTransactions, WithdrawableOwnable, 
     mapping(address => bool) public automatedMarketMakerPairs;
 
     constructor() ERC20("Heroes of Metaverse Token", "HOM") {
-        uint256 totalSupply = 420000000 * 10**18;
+        uint256 initialSupply = 420000000 * 10**18;
         excludeFromFees(address(this), true);
         excludeFromFees(owner(), true);
         excludeFromFees(DEAD_ADDRESS, true);
@@ -76,9 +76,9 @@ contract HOMToken is ERC20, Ownable, TimeLockTransactions, WithdrawableOwnable, 
         ecoSystemAddress = owner();
         liquidityAddress = DEAD_ADDRESS;
 
-        _mint(owner(), totalSupply);
+        _mint(owner(), initialSupply);
 
-        numTokensSellToAddToLiquidity = totalSupply / (10**6); // 0.000001% of total supply
+        numTokensSellToAddToLiquidity = initialSupply / (10**6); // 0.000001% of supply -> 420 tokens
 
         // Create a uniswap pair for this new token
         dexRouter = IUniswapV2Router02(0x10ED43C718714eb63d5aA57B78B54704E256024E); // mainnet
