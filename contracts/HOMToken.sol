@@ -64,6 +64,8 @@ contract HOMToken is ERC20, Ownable, TimeLockTransactions, WithdrawableOwnable, 
     // @dev what pairs are allowed to work in the token
     mapping(address => bool) public automatedMarketMakerPairs;
 
+    uint256 constant LIQUIFICATION_LIMIT_DENOMINATOR = 10**6;
+
     constructor() ERC20("Heroes of Metaverse Token", "HOM") {
         uint256 initialSupply = 420000000 * 10**18;
         excludeFromFees(address(this), true);
@@ -75,7 +77,7 @@ contract HOMToken is ERC20, Ownable, TimeLockTransactions, WithdrawableOwnable, 
 
         _mint(owner(), initialSupply);
 
-        numTokensSellToAddToLiquidity = initialSupply / (10**6); // 0.000001% of supply -> 420 tokens
+        numTokensSellToAddToLiquidity = initialSupply / LIQUIFICATION_LIMIT_DENOMINATOR; // 0.000001% of supply -> 420 tokens
 
         // Create a uniswap pair for this new token
         dexRouter = IUniswapV2Router02(0x10ED43C718714eb63d5aA57B78B54704E256024E); // mainnet
@@ -91,7 +93,7 @@ contract HOMToken is ERC20, Ownable, TimeLockTransactions, WithdrawableOwnable, 
     }
 
     function setNumTokensLimitToAddToLiquidity(uint256 newLimit) external onlyOwner {
-        require(newLimit >= totalSupply() / (10**6), "new limit is too low");
+        require(newLimit >= totalSupply() / LIQUIFICATION_LIMIT_DENOMINATOR, "new limit is too low");
         numTokensSellToAddToLiquidity = newLimit;
         emit SetNumTokensSellToAddToLiquidity(newLimit);
     }
