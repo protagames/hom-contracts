@@ -4,12 +4,10 @@ pragma solidity 0.8.9;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@uniswap/v2-core/contracts/interfaces/IUniswapV2Pair.sol";
-import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "@openzeppelin/contracts/utils/Address.sol";
 
 // @dev all decimals here are 18
 contract AntiDumpOwnable is Ownable{
-    using SafeMath for uint256;
     using Address for address;
 
     // @dev antidump mechanics
@@ -57,7 +55,7 @@ contract AntiDumpOwnable is Ownable{
     function getAntiDumpFee(address pair, uint256 amount) internal view returns(uint256) {
         uint256 volume = getTokenVolumeFromPair(pair);
         if (volume > 0) {
-            uint256 maxVolume = volume.mul(antiDumpThreshold).div(10**18);
+            uint256 maxVolume = (volume * antiDumpThreshold) / (10**18);
             if (amount >= maxVolume)
                 return antiDumpFee;
         }

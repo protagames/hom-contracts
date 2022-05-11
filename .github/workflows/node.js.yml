@@ -3,11 +3,7 @@
 
 name: Node.js CI
 
-on:
-  push:
-    branches: [ master ]
-  pull_request:
-    branches: [ master ]
+on: push
 
 jobs:
   build:
@@ -72,4 +68,9 @@ jobs:
         #dry_run: # optional, default is false
         # Enable verbose output
         #verbose: # optional, default is false
-
+    - name: Slack Notification
+      uses: rtCamp/action-slack-notify@v2
+      env:
+        SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+        SLACK_USERNAME: SmartContracts
+        SLACK_COLOR: ${{ job.status }}

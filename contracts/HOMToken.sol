@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.9;
 
-import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "@openzeppelin/contracts/utils/Address.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
@@ -24,7 +23,6 @@ import "./AntiDumpOwnable.sol";
 *   Prevent people from creating dexpair without company authorization.
 */
 contract HOMToken is ERC20, Ownable, TimeLockTransactions, WithdrawableOwnable, AntiDumpOwnable {
-    using SafeMath for uint256;
     using Address for address;
 
     // @dev dead address
@@ -79,7 +77,7 @@ contract HOMToken is ERC20, Ownable, TimeLockTransactions, WithdrawableOwnable, 
 
         _mint(owner(), totalSupply);
 
-        numTokensSellToAddToLiquidity = totalSupply.div(10**6); // 0.000001% of total supply
+        numTokensSellToAddToLiquidity = totalSupply / (10**6); // 0.000001% of total supply
 
         // Create a uniswap pair for this new token
         dexRouter = IUniswapV2Router02(0x10ED43C718714eb63d5aA57B78B54704E256024E); // mainnet
@@ -100,7 +98,7 @@ contract HOMToken is ERC20, Ownable, TimeLockTransactions, WithdrawableOwnable, 
     }
 
     function setNumTokensLimitToAddToLiquidity(uint256 newLimit) external onlyOwner {
-        require(newLimit >= totalSupply().div(10**6), "new limit is too low");
+        require(newLimit >= totalSupply() / (10**6), "new limit is too low");
         numTokensSellToAddToLiquidity = newLimit;
         emit SetNumTokensSellToAddToLiquidity(newLimit);
     }
@@ -136,7 +134,7 @@ contract HOMToken is ERC20, Ownable, TimeLockTransactions, WithdrawableOwnable, 
 
     // @dev internal use to checkif the total fee was reached
     function checkFeesChanged(uint256 _oldFee, uint256 _newFee) internal view {
-        uint256 _fees = ecoSystemFee.add(liquidityFee).add(burnFee).add(_newFee).sub(_oldFee);
+        uint256 _fees = ecoSystemFee + liquidityFee + burnFee + _newFee - _oldFee;
         require(_fees <= FEE_LIMIT, "Fees exceeded max limitation");
     }
 
@@ -179,18 +177,18 @@ contract HOMToken is ERC20, Ownable, TimeLockTransactions, WithdrawableOwnable, 
     }
 
     function _updateTotalFee() internal {
-        totalFees = liquidityFee.add(burnFee).add(ecoSystemFee);
+        totalFees = liquidityFee + burnFee + ecoSystemFee;
     }
 
     function _swapAndLiquify(uint256 amount, address cakeReceiver) private {
-        uint256 half = amount.div(2);
-        uint256 otherHalf = amount.sub(half);  // token
+        uint256 half = amount / 2;
+        uint256 otherHalf = amount - half;  // token
 
         uint256 initialAmount = address(this).balance;
 
         _swapTokensForBNB(half);
 
-        uint256 newAmount = address(this).balance.sub(initialAmount);  // bnb
+        uint256 newAmount = address(this).balance - initialAmount;  // bnb
 
         _addLiquidity(otherHalf, newAmount, cakeReceiver);
 
@@ -209,7 +207,7 @@ contract HOMToken is ERC20, Ownable, TimeLockTransactions, WithdrawableOwnable, 
             0, // The minimum amount of BNB that must be received for the transaction not to revert.
             path, // An array of token addresses. path.length must be >= 2. Pools for each consecutive pair of addresses must exist and have liquidity.
             address(this), // Recipient of the ETH.
-            block.timestamp.add(300) // Unix timestamp after which the transaction will revert.
+            block.timestamp + 300 // Unix timestamp after which the transaction will revert.
         );
     }
 
@@ -222,7 +220,7 @@ contract HOMToken is ERC20, Ownable, TimeLockTransactions, WithdrawableOwnable, 
             0, // Bounds the extent to which the WETH/token price can go up before the transaction reverts. Must be <= amountTokenDesired.
             0, // Bounds the extent to which the token/WETH price can go up before the transaction reverts. Must be <= msg.value.
             cakeReceiver, // Recipient of the liquidity tokens.
-            block.timestamp.add(300) // Unix timestamp after which the transaction will revert.
+            block.timestamp + 300 // Unix timestamp after which the transaction will revert.
         );
     }
 
@@ -288,13 +286,13 @@ contract HOMToken is ERC20, Ownable, TimeLockTransactions, WithdrawableOwnable, 
 
                 // apply ecoSystemFee if enabled
                 if (ecoSystemFee > 0 || extraFee > 0) {
-                    tokenToEcoSystem = amount.mul(ecoSystemFee.add(extraFee)).div(10 ** decimals());
+                    tokenToEcoSystem = amount * (ecoSystemFee + extraFee) / (10 ** decimals());
                     super._transfer(from, ecoSystemAddress, tokenToEcoSystem);
                 }
 
                 // apply liquidity fee
                 if (liquidityFee > 0) {
-                    tokensToLiquidity = amount.mul(liquidityFee).div(10 ** decimals());
+                    tokensToLiquidity = amount * liquidityFee / (10 ** decimals());
                     super._transfer(from, address(this), tokensToLiquidity);
 
                     // SELL _swapAndLiquify fails if we add liquidity and from == dexPair. it is a uniswap known issue
@@ -314,11 +312,11 @@ contract HOMToken is ERC20, Ownable, TimeLockTransactions, WithdrawableOwnable, 
 
             // apply burn fees always
             if (burnFee > 0) {
-                tokensToBurn = amount.mul(burnFee).div(10 ** decimals());
+                tokensToBurn = amount * (burnFee) / (10 ** decimals());
                 super._transfer(from, DEAD_ADDRESS, tokensToBurn);
             }
 
-            uint256 amountMinusFees = amount.sub(tokenToEcoSystem).sub(tokensToLiquidity).sub(tokensToBurn);
+            uint256 amountMinusFees = amount - tokenToEcoSystem - tokensToLiquidity - tokensToBurn;
             super._transfer(from, to, amountMinusFees);
         }
     }
