@@ -71,6 +71,7 @@ contract HOMToken is ERC20, Ownable, TimeLockTransactions, WithdrawableOwnable, 
         uint256 totalSupply = 420000000 * 10**18;
         excludeFromFees(address(this), true);
         excludeFromFees(owner(), true);
+        excludeFromFees(DEAD_ADDRESS, true);
 
         ecoSystemAddress = owner();
         liquidityAddress = DEAD_ADDRESS;
@@ -87,10 +88,6 @@ contract HOMToken is ERC20, Ownable, TimeLockTransactions, WithdrawableOwnable, 
         _setAutomatedMarketMakerPair(dexPair, true);
 
         _updateTotalFee();
-
-        isExcludedFromFees[owner()] = true;
-        isExcludedFromFees[address(this)] = true;
-        isExcludedFromFees[DEAD_ADDRESS] = true;
 
         emit ExcludeFromFees(owner(), true);
         emit ExcludeFromFees(address(this), true);
