@@ -4,6 +4,7 @@
 // When running the script with `npx hardhat run <script>` you'll find the Hardhat
 // Runtime Environment's members available in the global scope.
 import { ethers } from "hardhat";
+import {HOMToken, HOMToken__factory} from "../typechain";
 
 async function main() {
   // Hardhat always runs the compile task when running scripts with its command
@@ -17,7 +18,12 @@ async function main() {
 
   console.log("Deploying contracts with the account:", deployer.address);
 
-  console.log("liquidity address set");
+  const factory = <HOMToken__factory> await ethers.getContractFactory("HOMToken");
+
+  const contract: HOMToken = await factory.deploy();
+
+  await contract.deployed();
+  console.log("HOMToken deployed at address: " + contract.address);
 }
 
 // We recommend this pattern to be able to use async/await everywhere
